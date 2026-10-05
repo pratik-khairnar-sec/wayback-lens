@@ -76,7 +76,7 @@ Instead of dumping hundreds of thousands of raw text lines into your terminal or
 
 ## 🔍 Scan Modes
 
-Pick any target domain or URL (auto-detected from your active tab) and launch a specialized scan:
+Pick any target domain or URL (auto-detected from your active tab) and launch a targeted scan:
 
 | Mode | Scan Type | Target Scope | CDX Request Strategy |
 | :---: | :--- | :--- | :--- |
