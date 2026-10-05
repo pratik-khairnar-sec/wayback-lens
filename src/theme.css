@@ -1,0 +1,21 @@
+/* Shared design tokens. Palette: ink (blue-black), amber (archive), red (risk), teal (OK). */
+:root {
+  --ink: #0e131b;  --panel: #141b26;  --raise: #1b2433;  --line: #263143;
+  --text: #e7ecf3; --mute: #8b9bb0;   --faint: #5f6e83;
+  --amber: #f4b13e; --amber-ink: #1b1305; --red: #ff6b5e; --orange: #f08a3c;
+  --teal: #47d1b0;  --blue: #6aa8ff;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--ink); color: var(--text); font: 13px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 4px; }
+svg.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8;
+        stroke-linecap: round; stroke-linejoin: round; flex: none; }
+::selection { background: rgba(244, 177, 62, .35); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+[hidden] { display: none !important; }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wayback Lens - Results</title>
+  <link rel="icon" href="icons/icon-48.png">
+  <link rel="stylesheet" href="src/theme.css">
+  <link rel="stylesheet" href="src/results.css">
+</head>
+<body>
+  <header class="head">
+    <div class="brand"><img src="icons/icon-48.png" alt="" width="26" height="26"><b>Wayback Lens</b></div>
+    <div class="what"><span id="modeName" class="pill"></span><span id="host" class="host"></span></div>
+    <button id="copyQ" class="req" title="Copy the CDX request URL">
+      <code id="qline"></code><svg class="i"><use href="#i-copy"/></svg>
+    </button>
+  </header>
+
+  <div id="status" class="status" role="status" aria-live="polite">
+    <div class="track"><i></i></div>
+    <span id="statusText">Contacting the Wayback Machine</span>
+    <button id="cancel" class="ghost"><svg class="i"><use href="#i-stop"/></svg>Cancel</button>
+    <button id="retry" class="ghost" hidden><svg class="i"><use href="#i-retry"/></svg>Retry</button>
+  </div>
+
+  <section id="stats" class="stats" hidden>
+    <div><b id="sTotal">0</b><span>URLs</span></div>
+    <div><b id="sHosts">0</b><span>Hosts</span></div>
+    <div><b id="sParams">0</b><span>With parameters</span></div>
+    <div class="hot"><b id="sRisk">0</b><span>High risk</span></div>
+  </section>
+
+  <div id="app" class="app" hidden>
+    <aside class="side">
+      <h2>File type</h2>
+      <ul id="cats" class="facet"></ul>
+      <h2>Archived status</h2>
+      <ul id="statuses" class="facet"></ul>
+      <h2>Hosts</h2>
+      <ul id="hosts" class="facet"></ul>
+    </aside>
+
+    <main>
+      <div class="tools">
+        <div class="search">
+          <svg class="i"><use href="#i-search"/></svg>
+          <input id="q" type="search" spellcheck="false" autocomplete="off" placeholder="Filter, for example admin, api/v1 or backup">
+          <button id="rx" class="tog" title="Treat the filter as a regular expression" aria-pressed="false">.*</button>
+        </div>
+        <label class="chip"><input type="checkbox" id="onlyParams"><span>Has parameters</span></label>
+        <label class="chip"><input type="checkbox" id="only200"><span>Only 200</span></label>
+        <label class="chip" id="liveWrap" hidden><input type="checkbox" id="liveOnly"><span>Live now only</span></label>
+        <select id="sort" aria-label="Sort">
+          <option value="risk">Highest risk first</option>
+          <option value="new">Newest capture</option>
+          <option value="old">Oldest capture</option>
+          <option value="az">A to Z</option>
+        </select>
+      </div>
+
+      <div class="bar2">
+        <span id="count"></span>
+        <div class="exports">
+          <button id="verify" class="verify" title="Send HEAD requests to check which URLs respond right now"><svg class="i"><use href="#i-retry"/></svg>Verify live</button>
+          <button data-exp="copy"><svg class="i"><use href="#i-copy"/></svg>Copy</button>
+          <button data-exp="txt"><svg class="i"><use href="#i-down"/></svg>TXT</button>
+          <button data-exp="csv"><svg class="i"><use href="#i-down"/></svg>CSV</button>
+          <button data-exp="json"><svg class="i"><use href="#i-down"/></svg>JSON</button>
+          <button data-exp="hosts"><svg class="i"><use href="#i-down"/></svg>Hosts</button>
+        </div>
+      </div>
+
+      <ol id="list" class="list"></ol>
+      <button id="more" class="more" hidden></button>
+      <div id="empty" class="empty" hidden></div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="src/core.js"></script>
+  <script src="src/results.js"></script>
+</body>
+</html>

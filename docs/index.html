@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wayback Lens: archived URLs, ranked for recon</title>
+<meta name="description" content="A Chrome extension that pulls every URL the Wayback Machine has captured for a target, ranks them by risk, and exports them. By Pratik Khairnar.">
+<meta property="og:title" content="Wayback Lens">
+<meta property="og:description" content="Archived URLs, ranked by what is worth testing first.">
+<link rel="icon" href="icon-32.png">
+<style>
+:root{--ink:#0e131b;--panel:#141b26;--raise:#1b2433;--line:#263143;--text:#e7ecf3;--mute:#8b9bb0;--faint:#5f6e83;--amber:#f4b13e;--amber-ink:#1b1305;--red:#ff6b5e;
+--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(90% 50% at 15% 0,rgba(244,177,62,.09),transparent 60%),var(--ink);color:var(--text);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+nav{display:flex;align-items:center;gap:12px;padding:20px 0}
+nav img{border-radius:9px}
+nav b{font-weight:650;letter-spacing:-.01em}
+nav a.gh{margin-left:auto;color:var(--mute);text-decoration:none;font-size:14px}
+nav a.gh:hover{color:var(--amber)}
+.hero{padding:56px 0 40px;max-width:760px}
+h1{font-size:clamp(34px,6vw,58px);line-height:1.06;letter-spacing:-.03em;font-weight:700}
+.lede{margin-top:20px;color:var(--mute);font-size:19px;max-width:620px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);transition:border-color .15s,background .15s}
+.btn.pri{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
+.btn.pri:hover{background:#ffc15c}
+.btn:not(.pri):hover{border-color:var(--amber);color:var(--amber)}
+.shot{margin:14px 0 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px -30px rgba(244,177,62,.25),0 0 0 6px rgba(255,255,255,.015)}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{padding:10px 16px;color:var(--faint);font-size:13px;border-top:1px solid var(--line)}
+section{padding:72px 0 0}
+h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em;line-height:1.15}
+.sub{color:var(--mute);margin-top:10px;max-width:600px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;margin-top:28px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.modes div{background:var(--panel);padding:20px 22px}
+.modes h3{font-size:16px;font-weight:600}
+.modes p{color:var(--mute);font-size:14.5px;margin-top:4px}
+.modes code,.steps code{font-family:var(--mono);font-size:12.5px;color:var(--amber)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 392px;gap:48px;align-items:center}
+.split ul{list-style:none;margin-top:22px;display:grid;gap:14px}
+.split li{padding-left:18px;border-left:2px solid var(--line);color:var(--mute)}
+.split li b{display:block;color:var(--text);font-weight:600}
+.split .shot{margin:0;width:392px;max-width:100%}
+.steps{margin-top:26px;display:grid;gap:12px;counter-reset:s;list-style:none}
+.steps li{counter-increment:s;display:flex;gap:16px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font-weight:700;font-size:13px;display:grid;place-items:center}
+pre{margin-top:12px;padding:14px 16px;background:#0a0e14;border:1px solid var(--line);border-radius:10px;overflow-x:auto;font:13px/1.6 var(--mono);color:var(--text)}
+.perm{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:26px}
+.perm div{padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.perm b{display:block;font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:6px;font-weight:600}
+.perm p{color:var(--mute);font-size:14.5px}
+.note{margin-top:22px;padding:16px 18px;border:1px solid rgba(255,107,94,.35);border-radius:12px;color:var(--mute);font-size:14.5px}
+.note b{color:var(--red)}
+footer{margin-top:88px;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 24px}
+footer a{color:var(--mute)}footer a:hover{color:var(--amber)}
+@media(max-width:860px){.split{grid-template-columns:1fr}.split .shot{margin:0 auto}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <img src="icon-32.png" width="32" height="32" alt="">
+    <b>Wayback Lens</b>
+    <a class="gh" href="https://github.com/pratik-khairnar-sec/wayback-lens">GitHub</a>
+  </nav>
+
+  <header class="hero">
+    <h1>Every URL the Wayback Machine remembers, ranked by what is worth testing.</h1>
+    <p class="lede">Pick a target, choose a scan, and get archived endpoints, subdomains, JavaScript and leaked files in a workspace you can filter, verify and export. Not a wall of raw text.</p>
+    <div class="cta">
+      <a class="btn pri" href="https://github.com/pratik-khairnar-sec/wayback-lens">View on GitHub</a>
+      <a class="btn" href="#install">Install from source</a>
+    </div>
+  </header>
+
+  <figure class="shot">
+    <img src="results.png" alt="Results workspace listing archived URLs ranked by risk, with file type, status and host filters" width="1360" height="860">
+    <figcaption>The results workspace, shown with sample data for example.com.</figcaption>
+  </figure>
+
+  <section>
+    <h2>Six scans, one click each</h2>
+    <p class="sub">Hover any scan in the popup to see the exact Wayback CDX request before it is sent.</p>
+    <div class="modes">
+      <div><h3>Main domain</h3><p>Every archived path on the exact host. <code>url=host/*</code></p></div>
+      <div><h3>All subdomains</h3><p>The host and every subdomain beneath it. <code>matchType=domain</code></p></div>
+      <div><h3>This path</h3><p>Everything under the current path. <code>matchType=prefix</code></p></div>
+      <div><h3>Sensitive files</h3><p>Backups, dumps, keys, configs, logs and documents.</p></div>
+      <div><h3>JavaScript</h3><p>Old bundles that leak endpoints and secrets.</p></div>
+      <div><h3>With parameters</h3><p>Query-string URLs ready to feed into a fuzzer.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="split">
+      <div>
+        <h2>Triage, not just collection</h2>
+        <p class="sub">Thousands of archived URLs are noise until you can sort them. The results page does that for you.</p>
+        <ul>
+          <li><b>Risk ranking</b>.env, .git, SQL dumps and .bak files surface first, each tagged by file type.</li>
+          <li><b>Status filter</b>Hide the dead captures with Only 200, or isolate the 404s.</li>
+          <li><b>Verify live</b>Optional HEAD checks show which URLs respond right now, for in-scope targets only.</li>
+          <li><b>Export</b>Copy, TXT, CSV, JSON, or just the unique hosts as a passive subdomain list.</li>
+        </ul>
+      </div>
+      <figure class="shot"><img src="popup.png" alt="The extension popup with six scan buttons and a live request preview" width="392" height="560"></figure>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install in a minute</h2>
+    <p class="sub">Not on the Chrome Web Store yet, so you load it from source. Works in Chrome, Edge and Brave.</p>
+    <ol class="steps">
+      <li><div>Clone the repository.<pre>git clone https://github.com/pratik-khairnar-sec/wayback-lens.git</pre></div></li>
+      <li><div>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</div></li>
+      <li><div>Click <b>Load unpacked</b> and choose the project folder, then pin the icon.</div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Small footprint, no tracking</h2>
+    <div class="perm">
+      <div><b>activeTab</b><p>Reads the current tab URL to pre-fill the target, only when you open the popup.</p></div>
+      <div><b>storage</b><p>Remembers your options and five recent targets, locally.</p></div>
+      <div><b>web.archive.org</b><p>The only site it contacts by default, to query the public CDX API.</p></div>
+      <div><b>Optional: live sites</b><p>Requested only when you click Verify live. Revoke it any time.</p></div>
+    </div>
+    <p class="note"><b>Use it on authorized targets.</b> Archive data is public, but probing live hosts is not automatically permitted. Stay within bug bounty scope or written permission.</p>
+  </section>
+
+  <footer>
+    <span>Built by <a href="https://github.com/pratik-khairnar-sec">Pratik Khairnar</a>. MIT licensed.</span>
+    <span>Not affiliated with the Internet Archive.</span>
+  </footer>
+</div>
+</body>
+</html>

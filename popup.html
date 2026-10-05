@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wayback Lens</title>
+  <link rel="stylesheet" href="src/theme.css">
+  <link rel="stylesheet" href="src/popup.css">
+</head>
+<body>
+  <header class="top">
+    <img src="icons/icon-48.png" alt="" class="mark" width="30" height="30">
+    <div>
+      <h1>Wayback Lens</h1>
+      <p>Archived endpoints for recon</p>
+    </div>
+  </header>
+
+  <label class="target" for="target">
+    <svg class="i"><use href="#i-link"/></svg>
+    <input id="target" type="text" spellcheck="false" autocomplete="off" placeholder="example.com or a full URL">
+    <span id="scope" class="scope" aria-live="polite"></span>
+  </label>
+
+  <nav id="modes" class="modes" aria-label="Scan type"></nav>
+
+  <div class="preview">
+    <span>Request</span>
+    <code id="qprev">Point at a scan to see the exact CDX request.</code>
+  </div>
+
+  <div class="opts">
+    <label class="chk"><input type="checkbox" id="live"><span class="box"></span>Archived 200 only</label>
+    <label class="lim">Max results
+      <select id="limit">
+        <option value="10000">10,000</option>
+        <option value="100000" selected>100,000</option>
+        <option value="500000">500,000</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="recent" class="recent" hidden></div>
+
+  <footer>
+    <span>Built by <a href="https://github.com/pratik-khairnar-sec" target="_blank" rel="noopener">Pratik</a></span>
+    <a href="https://github.com/pratik-khairnar-sec/wayback-lens" target="_blank" rel="noopener">Source on GitHub</a>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="src/core.js"></script>
+  <script src="src/popup.js"></script>
+</body>
+</html>
