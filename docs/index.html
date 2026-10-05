@@ -110,23 +110,42 @@ h1 { font-size: clamp(36px, 6.2vw, 64px); line-height: 1.08; letter-spacing: -0.
 .sim-tab:hover { color: var(--text); background: var(--raise); }
 .sim-tab.active { background: rgba(245, 158, 11, 0.12); color: var(--amber); border-color: rgba(245, 158, 11, 0.3); }
 .sim-body { padding: 18px; }
-.sim-stats { display: flex; gap: 24px; padding: 12px 18px; background: #070b12; border-radius: 8px; margin-bottom: 16px; font-size: 13px; color: var(--mute); border: 1px solid var(--line); }
+.sim-stats { display: flex; flex-wrap: wrap; gap: 20px; padding: 12px 18px; background: #070b12; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: var(--mute); border: 1px solid var(--line); }
 .sim-stats b { color: var(--text); margin-right: 4px; font-family: var(--mono); }
 .sim-stats .hot b { color: var(--red); }
+
+.sim-filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sim-search { flex: 1; display: flex; align-items: center; gap: 8px; background: #070b12; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; height: 38px; color: var(--faint); }
+.sim-search:focus-within { border-color: var(--amber); color: var(--amber); }
+.sim-search input { flex: 1; background: none; border: 0; outline: 0; color: var(--text); font-family: var(--mono); font-size: 12.5px; }
+.sim-count { font-size: 12px; color: var(--faint); font-family: var(--mono); white-space: nowrap; }
+
 .sim-table { list-style: none; display: grid; gap: 4px; font-family: var(--mono); font-size: 13px; }
 .sim-row { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 14px; background: var(--raise); border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); transition: background 0.15s; }
 .sim-row:hover { background: var(--raise-hover); }
 .sim-rail { height: 100%; border-radius: 2px; }
 .rail-r3 { background: var(--red); } .rail-r2 { background: var(--orange); } .rail-r1 { background: var(--blue); }
 .sim-url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
-.sim-url span { color: var(--faint); }
 .sim-tag { font-size: 11px; padding: 2px 8px; border-radius: 99px; white-space: nowrap; border: 1px solid var(--line); }
 .tag-r3 { color: var(--red); background: var(--red-bg); border-color: rgba(239, 68, 68, 0.3); }
 .tag-r2 { color: var(--orange); background: var(--orange-bg); border-color: rgba(249, 115, 22, 0.3); }
 .tag-r1 { color: var(--blue); background: var(--blue-bg); border-color: rgba(59, 130, 246, 0.3); }
 .sim-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
-.status-200 { color: var(--teal); background: var(--teal-bg); }
 .status-live { color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+/* Scan Modes & Popup Showcase */
+.modes-section { padding: 80px 0 40px; }
+.modes-split { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: center; }
+.modes-list { display: grid; gap: 12px; }
+.mode-item { display: flex; gap: 16px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; transition: border-color 0.15s; }
+.mode-item:hover { border-color: var(--line-light); }
+.m-icon { width: 38px; height: 38px; border-radius: 8px; display: grid; place-items: center; background: rgba(245, 158, 11, 0.1); color: var(--amber); flex: none; border: 1px solid rgba(245, 158, 11, 0.2); }
+.mode-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.mode-item p { color: var(--mute); font-size: 13.5px; }
+.mode-item code { font-family: var(--mono); color: var(--amber); font-size: 12px; }
+.popup-preview { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; padding: 10px; box-shadow: 0 20px 60px -15px rgba(0,0,0,0.7); text-align: center; }
+.popup-preview img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.popup-caption { font-size: 12px; color: var(--faint); margin-top: 10px; }
 
 /* Feature Grid */
 .features { padding: 90px 0; }
@@ -160,7 +179,7 @@ td:first-child { font-weight: 600; }
 
 /* Scope Banner */
 .scope-callout { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 20px 24px; margin-top: 40px; display: flex; align-items: flex-start; gap: 16px; }
-.scope-callout svg { flex-none; color: var(--red); margin-top: 2px; }
+.scope-callout svg { flex: none; color: var(--red); margin-top: 2px; }
 .scope-callout p { font-size: 14px; color: #cbd5e1; }
 .scope-callout b { color: var(--red); }
 
@@ -173,8 +192,10 @@ footer a:hover { color: var(--amber); }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 15px); padding: 10px 20px; border-radius: 10px; background: var(--raise); border: 1px solid var(--amber); color: #fff; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .hero { padding: 48px 0 30px; }
+  .modes-split { grid-template-columns: 1fr; }
+  .popup-preview { max-width: 380px; margin: 0 auto; }
   .sim-stats { flex-direction: column; gap: 8px; }
   .sim-row { grid-template-columns: 4px minmax(0, 1fr); }
   .sim-tag, .sim-status { display: none; }
@@ -194,6 +215,7 @@ footer a:hover { color: var(--amber); }
     </div>
     <div class="nav-links">
       <a href="#demo">Live Demo</a>
+      <a href="#modes">Scan Modes</a>
       <a href="#features">Features</a>
       <a href="#install">Install</a>
       <a href="https://github.com/pratik-khairnar-sec/wayback-lens" class="nav-btn" target="_blank" rel="noopener">
@@ -213,9 +235,9 @@ footer a:hover { color: var(--amber); }
       Stream millions of Wayback Machine captures directly into an interactive triage workspace. Uncover hidden endpoints, leaked credentials, forgotten subdomains, and live assets without drowning in raw text dumps.
     </p>
     <div class="cta-group">
-      <a class="btn btn-pri" href="https://github.com/pratik-khairnar-sec/wayback-lens/archive/refs/heads/main.zip">
+      <a class="btn btn-pri" href="https://github.com/pratik-khairnar-sec/wayback-lens/releases/download/v1.0.0/wayback-lens-v1.0.0.zip">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Extension (.ZIP)
+        Download Release v1.0.0 (.ZIP)
       </a>
       <a class="btn btn-sec" href="https://github.com/pratik-khairnar-sec/wayback-lens" target="_blank" rel="noopener">
         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -248,7 +270,7 @@ footer a:hover { color: var(--amber); }
   <section class="demo-section" id="demo">
     <div class="section-header">
       <h2>Interactive Recon Simulator</h2>
-      <p>Test the heuristic triage engine right here. Click a scan mode to see how Wayback Lens prioritizes findings.</p>
+      <p>Test the heuristic triage engine right here. Click a scan profile and filter findings live.</p>
     </div>
 
     <div class="sim-container">
@@ -272,14 +294,90 @@ footer a:hover { color: var(--amber); }
       </div>
       <div class="sim-body">
         <div class="sim-stats">
-          <div><b id="simTotal">4,812</b> URLs Found</div>
-          <div><b id="simHosts">28</b> Unique Hosts</div>
-          <div class="hot"><b id="simRisk">19</b> High-Risk Targets</div>
+          <div><b id="simTotal">1,428</b> URLs Found</div>
+          <div><b id="simHosts">12</b> Unique Hosts</div>
+          <div class="hot"><b id="simRisk">24</b> High-Risk Targets</div>
           <div style="margin-left: auto;">Verified with <b style="color:var(--teal)">Live HEAD</b> Probes</div>
         </div>
+
+        <div class="sim-filter-bar">
+          <div class="sim-search">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="simInput" placeholder="Filter demo results, e.g. .env, sql, private, config...">
+          </div>
+          <span class="sim-count" id="simMatchCount">Showing 6 items</span>
+        </div>
+
         <ul class="sim-table" id="simList">
           <!-- Populated by JavaScript -->
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scan Modes & Popup Showcase -->
+  <section class="modes-section" id="modes">
+    <div class="section-header">
+      <h2>Targeted Scan Modes</h2>
+      <p>Six specialized recon scopes designed to extract exactly what matters for your engagement.</p>
+    </div>
+
+    <div class="modes-split">
+      <div class="modes-list">
+        <div class="mode-item">
+          <div class="m-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.4 3.2 14.6 0 18M12 3c-3.2 3.4-3.2 14.6 0 18"/></svg>
+          </div>
+          <div>
+            <h4>Main Domain (Host Scope)</h4>
+            <p>Every archived URL on the exact hostname. <code>url=host/*</code></p>
+          </div>
+        </div>
+
+        <div class="mode-item">
+          <div class="m-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5H5v5M12 11.5h7v5"/></svg>
+          </div>
+          <div>
+            <h4>All Subdomains</h4>
+            <p>Passive subdomain enumeration covering the root host and all subdomains. <code>matchType=domain</code></p>
+          </div>
+        </div>
+
+        <div class="mode-item">
+          <div class="m-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          </div>
+          <div>
+            <h4>Sensitive Files</h4>
+            <p>Backups (<code>.bak</code>, <code>.sql</code>), private keys, <code>.env</code>, configs, logs, and dumps.</p>
+          </div>
+        </div>
+
+        <div class="mode-item">
+          <div class="m-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/></svg>
+          </div>
+          <div>
+            <h4>JavaScript Bundles</h4>
+            <p>Archived <code>.js</code> and <code>.mjs</code> files to uncover hidden API endpoints and leaked keys.</p>
+          </div>
+        </div>
+
+        <div class="mode-item">
+          <div class="m-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+          </div>
+          <div>
+            <h4>With Parameters</h4>
+            <p>Query-string endpoints ready to feed into fuzzers for SSRF, SQLi, and IDOR testing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-preview">
+        <img src="popup.png" alt="Wayback Lens Extension Popup" width="392" height="560">
+        <p class="popup-caption">Extension Popup: pre-fills active tab, previewing live CDX query.</p>
       </div>
     </div>
   </section>
@@ -373,8 +471,8 @@ footer a:hover { color: var(--amber); }
             <td class="cross">✗ None</td>
           </tr>
           <tr>
-            <td>Live 200 Status Verification</td>
-            <td class="highlight-col check">✓ Built-in HEAD Prober</td>
+            <td>Live HTTP 200 Prober</td>
+            <td class="highlight-col check">✓ Built-in Multi-Worker</td>
             <td class="cross">✗ Pipe to httpx</td>
             <td class="cross">✗ None</td>
           </tr>
@@ -412,7 +510,7 @@ footer a:hover { color: var(--amber); }
       <div class="step-card">
         <div class="step-num">1</div>
         <h3>Clone or Download</h3>
-        <p>Clone the repository or grab the ready-to-run ZIP archive:</p>
+        <p>Grab the official release ZIP or clone the repository:</p>
         <p style="margin-top:8px;"><code>git clone https://github.com/pratik-khairnar-sec/wayback-lens.git</code></p>
       </div>
 
@@ -512,7 +610,12 @@ const DEMO_DATA = {
   }
 };
 
-function renderSim(mode) {
+let currentMode = 'sensitive';
+const simInput = document.getElementById('simInput');
+const simMatchCount = document.getElementById('simMatchCount');
+
+function renderSim(mode, filterText = '') {
+  currentMode = mode;
   const data = DEMO_DATA[mode];
   if (!data) return;
   document.getElementById('simTotal').textContent = data.total;
@@ -520,7 +623,27 @@ function renderSim(mode) {
   document.getElementById('simRisk').textContent = data.risk;
   const list = document.getElementById('simList');
   list.innerHTML = '';
-  data.items.forEach(item => {
+  
+  const query = filterText.toLowerCase().trim();
+  const filtered = data.items.filter(item => 
+    !query || item.url.toLowerCase().includes(query) || item.tag.toLowerCase().includes(query)
+  );
+
+  if (simMatchCount) {
+    simMatchCount.textContent = `Showing ${filtered.length} of ${data.items.length} items`;
+  }
+
+  if (filtered.length === 0) {
+    const li = document.createElement('li');
+    li.style.padding = '24px';
+    li.style.textAlign = 'center';
+    li.style.color = 'var(--mute)';
+    li.textContent = 'No matching simulation records. Try another filter word.';
+    list.appendChild(li);
+    return;
+  }
+
+  filtered.forEach(item => {
     const li = document.createElement('li');
     li.className = 'sim-row';
     li.innerHTML = `
@@ -538,9 +661,16 @@ tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
+    if (simInput) simInput.value = '';
     renderSim(tab.dataset.mode);
   });
 });
+
+if (simInput) {
+  simInput.addEventListener('input', e => {
+    renderSim(currentMode, e.target.value);
+  });
+}
 
 renderSim('sensitive');
 </script>
