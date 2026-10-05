@@ -1,0 +1,48 @@
+name: Lint & Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate manifest.json and icon assets
+        run: |
+          node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            if (manifest.manifest_version !== 3) {
+              console.error('Error: Must be Manifest V3');
+              process.exit(1);
+            }
+            console.log('Manifest Version:', manifest.manifest_version, 'Extension Version:', manifest.version);
+            const iconSizes = ['16', '48', '128'];
+            for (const sz of iconSizes) {
+              const p = manifest.icons[sz];
+              if (!fs.existsSync(p)) {
+                console.error('Missing icon asset:', p);
+                process.exit(1);
+              }
+            }
+            console.log('All icons verified successfully.');
+          "
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/core.js
+          node --check src/popup.js
+          node --check src/results.js
+          echo "All core JavaScript files validated successfully."

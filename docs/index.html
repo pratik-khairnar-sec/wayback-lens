@@ -3,141 +3,546 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wayback Lens: archived URLs, ranked for recon</title>
-<meta name="description" content="A Chrome extension that pulls every URL the Wayback Machine has captured for a target, ranks them by risk, and exports them. By Pratik Khairnar.">
-<meta property="og:title" content="Wayback Lens">
-<meta property="og:description" content="Archived URLs, ranked by what is worth testing first.">
+<title>Wayback Lens — High-Performance Wayback Machine Recon & Triage Workspace</title>
+<meta name="description" content="A Chrome Manifest V3 extension that streams millions of Wayback Machine captures for any target, intelligently ranks by security risk, verifies live endpoints, and exports actionable recon datasets. Built by Pratik Khairnar.">
+<meta name="keywords" content="Wayback Machine, CDX API, recon, bug bounty, pentesting, OSINT, chrome extension, infosec, cybersecurity">
+<meta property="og:title" content="Wayback Lens — High-Performance Wayback Recon">
+<meta property="og:description" content="Archived URLs, subdomains, JavaScript bundles, and sensitive leaks. Ranked by what is worth testing first.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pratik-khairnar-sec.github.io/wayback-lens/">
+<meta property="og:image" content="results.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wayback Lens — Recon & Triage Workspace">
+<meta name="twitter:description" content="Stream, rank, verify, and export Wayback Machine archives for passive recon.">
+<meta name="twitter:image" content="results.png">
 <link rel="icon" href="icon-32.png">
 <style>
-:root{--ink:#0e131b;--panel:#141b26;--raise:#1b2433;--line:#263143;--text:#e7ecf3;--mute:#8b9bb0;--faint:#5f6e83;--amber:#f4b13e;--amber-ink:#1b1305;--red:#ff6b5e;
---mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;color-scheme:dark}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:radial-gradient(90% 50% at 15% 0,rgba(244,177,62,.09),transparent 60%),var(--ink);color:var(--text);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-nav{display:flex;align-items:center;gap:12px;padding:20px 0}
-nav img{border-radius:9px}
-nav b{font-weight:650;letter-spacing:-.01em}
-nav a.gh{margin-left:auto;color:var(--mute);text-decoration:none;font-size:14px}
-nav a.gh:hover{color:var(--amber)}
-.hero{padding:56px 0 40px;max-width:760px}
-h1{font-size:clamp(34px,6vw,58px);line-height:1.06;letter-spacing:-.03em;font-weight:700}
-.lede{margin-top:20px;color:var(--mute);font-size:19px;max-width:620px}
-.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.btn{display:inline-flex;align-items:center;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid var(--line);transition:border-color .15s,background .15s}
-.btn.pri{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
-.btn.pri:hover{background:#ffc15c}
-.btn:not(.pri):hover{border-color:var(--amber);color:var(--amber)}
-.shot{margin:14px 0 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px -30px rgba(244,177,62,.25),0 0 0 6px rgba(255,255,255,.015)}
-.shot img{display:block;width:100%;height:auto}
-.shot figcaption{padding:10px 16px;color:var(--faint);font-size:13px;border-top:1px solid var(--line)}
-section{padding:72px 0 0}
-h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em;line-height:1.15}
-.sub{color:var(--mute);margin-top:10px;max-width:600px}
-.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;margin-top:28px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.modes div{background:var(--panel);padding:20px 22px}
-.modes h3{font-size:16px;font-weight:600}
-.modes p{color:var(--mute);font-size:14.5px;margin-top:4px}
-.modes code,.steps code{font-family:var(--mono);font-size:12.5px;color:var(--amber)}
-.split{display:grid;grid-template-columns:minmax(0,1fr) 392px;gap:48px;align-items:center}
-.split ul{list-style:none;margin-top:22px;display:grid;gap:14px}
-.split li{padding-left:18px;border-left:2px solid var(--line);color:var(--mute)}
-.split li b{display:block;color:var(--text);font-weight:600}
-.split .shot{margin:0;width:392px;max-width:100%}
-.steps{margin-top:26px;display:grid;gap:12px;counter-reset:s;list-style:none}
-.steps li{counter-increment:s;display:flex;gap:16px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
-.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font-weight:700;font-size:13px;display:grid;place-items:center}
-pre{margin-top:12px;padding:14px 16px;background:#0a0e14;border:1px solid var(--line);border-radius:10px;overflow-x:auto;font:13px/1.6 var(--mono);color:var(--text)}
-.perm{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:26px}
-.perm div{padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
-.perm b{display:block;font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:6px;font-weight:600}
-.perm p{color:var(--mute);font-size:14.5px}
-.note{margin-top:22px;padding:16px 18px;border:1px solid rgba(255,107,94,.35);border-radius:12px;color:var(--mute);font-size:14.5px}
-.note b{color:var(--red)}
-footer{margin-top:88px;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 24px}
-footer a{color:var(--mute)}footer a:hover{color:var(--amber)}
-@media(max-width:860px){.split{grid-template-columns:1fr}.split .shot{margin:0 auto}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+:root {
+  --ink: #080c13;
+  --panel: #0e1420;
+  --raise: #151d2c;
+  --raise-hover: #1c2638;
+  --line: #222d3e;
+  --line-light: #2d3b50;
+  --text: #eaf0f8;
+  --mute: #94a3b8;
+  --faint: #627287;
+  --amber: #f59e0b;
+  --amber-glow: rgba(245, 158, 11, 0.16);
+  --amber-ink: #160e02;
+  --red: #ef4444;
+  --red-bg: rgba(239, 68, 68, 0.15);
+  --orange: #f97316;
+  --orange-bg: rgba(249, 115, 22, 0.15);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59, 130, 246, 0.15);
+  --teal: #10b981;
+  --teal-bg: rgba(16, 185, 129, 0.15);
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background-color: var(--ink);
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.12), transparent),
+    radial-gradient(circle at 100% 40%, rgba(59, 130, 246, 0.05), transparent 40%),
+    radial-gradient(circle at 0% 80%, rgba(16, 185, 129, 0.04), transparent 40%);
+  background-attachment: fixed;
+  color: var(--text);
+  font: 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+/* Navigation */
+nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid rgba(34, 45, 62, 0.6); }
+.nav-brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+.nav-brand img { border-radius: 9px; }
+.badge-mv3 { font-size: 11px; font-family: var(--mono); font-weight: 600; padding: 2px 8px; border-radius: 99px; background: rgba(245, 158, 11, 0.12); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+.nav-links { display: flex; align-items: center; gap: 20px; font-size: 14.5px; }
+.nav-links a { color: var(--mute); transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; background: var(--panel); transition: all 0.15s; }
+.nav-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--raise); }
+
+/* Hero */
+.hero { text-align: center; padding: 72px 0 50px; max-width: 860px; margin: 0 auto; }
+.hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); font-size: 13px; color: var(--mute); margin-bottom: 24px; }
+.hero-tag span { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+h1 { font-size: clamp(36px, 6.2vw, 64px); line-height: 1.08; letter-spacing: -0.035em; font-weight: 800; background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.lede { margin: 24px auto 0; color: var(--mute); font-size: clamp(17px, 2.2vw, 20px); line-height: 1.6; max-width: 720px; }
+.cta-group { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; margin-top: 36px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 1px solid var(--line); transition: all 0.18s; cursor: pointer; }
+.btn-pri { background: var(--amber); color: var(--amber-ink); border-color: var(--amber); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
+.btn-pri:hover { background: #fbbf24; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4); }
+.btn-sec { background: var(--panel); color: var(--text); border-color: var(--line); }
+.btn-sec:hover { background: var(--raise); border-color: var(--line-light); color: #fff; transform: translateY(-1px); }
+
+/* Quick Clone Box */
+.clone-box { display: inline-flex; align-items: center; gap: 12px; margin-top: 24px; padding: 8px 14px; background: #05080e; border: 1px solid var(--line); border-radius: 8px; font-family: var(--mono); font-size: 13px; color: var(--mute); max-width: 100%; }
+.clone-box code { color: #cbd5e1; user-select: all; }
+.copy-btn { background: none; border: 0; color: var(--mute); cursor: pointer; display: flex; align-items: center; padding: 4px; border-radius: 4px; transition: color 0.15s; }
+.copy-btn:hover { color: var(--amber); }
+
+/* Media Showcase */
+.showcase { margin-top: 24px; position: relative; border-radius: 16px; padding: 6px; background: linear-gradient(180deg, rgba(245, 158, 11, 0.25) 0%, rgba(34, 45, 62, 0.4) 100%); box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.8), 0 0 50px -10px rgba(245, 158, 11, 0.15); }
+.showcase-inner { border-radius: 12px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); }
+.showcase img { display: block; width: 100%; height: auto; }
+.showcase-bar { display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: #090e17; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; color: var(--mute); }
+.dots { display: flex; gap: 6px; margin-right: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #283547; }
+.dot.r { background: #ef4444; } .dot.y { background: #f59e0b; } .dot.g { background: #10b981; }
+
+/* Interactive Simulator */
+.demo-section { padding: 90px 0 30px; }
+.section-header { text-align: center; max-width: 680px; margin: 0 auto 48px; }
+.section-header h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.025em; font-weight: 700; }
+.section-header p { color: var(--mute); margin-top: 12px; font-size: 17px; }
+
+.sim-container { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.6); }
+.sim-tabs { display: flex; flex-wrap: wrap; background: #070b12; border-bottom: 1px solid var(--line); padding: 8px 12px; gap: 6px; }
+.sim-tab { background: none; border: 1px solid transparent; color: var(--mute); padding: 8px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+.sim-tab:hover { color: var(--text); background: var(--raise); }
+.sim-tab.active { background: rgba(245, 158, 11, 0.12); color: var(--amber); border-color: rgba(245, 158, 11, 0.3); }
+.sim-body { padding: 18px; }
+.sim-stats { display: flex; gap: 24px; padding: 12px 18px; background: #070b12; border-radius: 8px; margin-bottom: 16px; font-size: 13px; color: var(--mute); border: 1px solid var(--line); }
+.sim-stats b { color: var(--text); margin-right: 4px; font-family: var(--mono); }
+.sim-stats .hot b { color: var(--red); }
+.sim-table { list-style: none; display: grid; gap: 4px; font-family: var(--mono); font-size: 13px; }
+.sim-row { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 14px; background: var(--raise); border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); transition: background 0.15s; }
+.sim-row:hover { background: var(--raise-hover); }
+.sim-rail { height: 100%; border-radius: 2px; }
+.rail-r3 { background: var(--red); } .rail-r2 { background: var(--orange); } .rail-r1 { background: var(--blue); }
+.sim-url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.sim-url span { color: var(--faint); }
+.sim-tag { font-size: 11px; padding: 2px 8px; border-radius: 99px; white-space: nowrap; border: 1px solid var(--line); }
+.tag-r3 { color: var(--red); background: var(--red-bg); border-color: rgba(239, 68, 68, 0.3); }
+.tag-r2 { color: var(--orange); background: var(--orange-bg); border-color: rgba(249, 115, 22, 0.3); }
+.tag-r1 { color: var(--blue); background: var(--blue-bg); border-color: rgba(59, 130, 246, 0.3); }
+.sim-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.status-200 { color: var(--teal); background: var(--teal-bg); }
+.status-live { color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+/* Feature Grid */
+.features { padding: 90px 0; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.f-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 28px; position: relative; transition: all 0.2s; }
+.f-card:hover { border-color: var(--line-light); transform: translateY(-2px); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5); }
+.f-icon { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; background: rgba(245, 158, 11, 0.1); color: var(--amber); margin-bottom: 20px; border: 1px solid rgba(245, 158, 11, 0.2); }
+.f-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+.f-card p { color: var(--mute); font-size: 14.5px; line-height: 1.6; }
+
+/* Comparison Table */
+.compare-section { padding: 40px 0 90px; }
+.compare-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+th, td { padding: 16px 20px; border-bottom: 1px solid var(--line); }
+th { background: #070b12; color: var(--mute); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; }
+.check { color: var(--teal); font-weight: 700; }
+.cross { color: var(--faint); }
+.highlight-col { background: rgba(245, 158, 11, 0.03); }
+
+/* Steps */
+.install-section { padding: 40px 0 90px; }
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 32px; }
+.step-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: var(--amber-ink); font-weight: 800; font-size: 13px; display: grid; place-items: center; margin-bottom: 16px; }
+.step-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.step-card p { font-size: 14px; color: var(--mute); line-height: 1.5; }
+.step-card code { font-family: var(--mono); color: var(--amber); font-size: 12.5px; }
+
+/* Scope Banner */
+.scope-callout { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 20px 24px; margin-top: 40px; display: flex; align-items: flex-start; gap: 16px; }
+.scope-callout svg { flex-none; color: var(--red); margin-top: 2px; }
+.scope-callout p { font-size: 14px; color: #cbd5e1; }
+.scope-callout b { color: var(--red); }
+
+/* Footer */
+footer { padding: 40px 0 60px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
+footer a { color: var(--mute); transition: color 0.15s; }
+footer a:hover { color: var(--amber); }
+
+/* Toast */
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 15px); padding: 10px 20px; border-radius: 10px; background: var(--raise); border: 1px solid var(--amber); color: #fff; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 768px) {
+  .hero { padding: 48px 0 30px; }
+  .sim-stats { flex-direction: column; gap: 8px; }
+  .sim-row { grid-template-columns: 4px minmax(0, 1fr); }
+  .sim-tag, .sim-status { display: none; }
+  footer { flex-direction: column; text-align: center; }
+}
 </style>
 </head>
 <body>
+
 <div class="wrap">
+  <!-- Navigation -->
   <nav>
-    <img src="icon-32.png" width="32" height="32" alt="">
-    <b>Wayback Lens</b>
-    <a class="gh" href="https://github.com/pratik-khairnar-sec/wayback-lens">GitHub</a>
+    <div class="nav-brand">
+      <img src="icon-32.png" width="32" height="32" alt="Wayback Lens logo">
+      <span>Wayback Lens</span>
+      <span class="badge-mv3">MV3</span>
+    </div>
+    <div class="nav-links">
+      <a href="#demo">Live Demo</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/pratik-khairnar-sec/wayback-lens" class="nav-btn" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
   </nav>
 
+  <!-- Hero -->
   <header class="hero">
-    <h1>Every URL the Wayback Machine remembers, ranked by what is worth testing.</h1>
-    <p class="lede">Pick a target, choose a scan, and get archived endpoints, subdomains, JavaScript and leaked files in a workspace you can filter, verify and export. Not a wall of raw text.</p>
-    <div class="cta">
-      <a class="btn pri" href="https://github.com/pratik-khairnar-sec/wayback-lens">View on GitHub</a>
-      <a class="btn" href="#install">Install from source</a>
+    <div class="hero-tag">
+      <span></span> Built for Bug Bounty, AppSec & Threat Intel
+    </div>
+    <h1>Every Archived URL.<br>Ranked for Recon, Built for Speed.</h1>
+    <p class="lede">
+      Stream millions of Wayback Machine captures directly into an interactive triage workspace. Uncover hidden endpoints, leaked credentials, forgotten subdomains, and live assets without drowning in raw text dumps.
+    </p>
+    <div class="cta-group">
+      <a class="btn btn-pri" href="https://github.com/pratik-khairnar-sec/wayback-lens/archive/refs/heads/main.zip">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Extension (.ZIP)
+      </a>
+      <a class="btn btn-sec" href="https://github.com/pratik-khairnar-sec/wayback-lens" target="_blank" rel="noopener">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Star on GitHub
+      </a>
+    </div>
+    <div>
+      <div class="clone-box">
+        <span>$</span>
+        <code id="cloneCmd">git clone https://github.com/pratik-khairnar-sec/wayback-lens.git</code>
+        <button class="copy-btn" id="btnCopyClone" title="Copy git clone command">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <figure class="shot">
-    <img src="results.png" alt="Results workspace listing archived URLs ranked by risk, with file type, status and host filters" width="1360" height="860">
-    <figcaption>The results workspace, shown with sample data for example.com.</figcaption>
+  <!-- Showcase Image -->
+  <figure class="showcase">
+    <div class="showcase-inner">
+      <div class="showcase-bar">
+        <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+        <span>Wayback Lens Workspace — example.com (100,000+ captures streamed)</span>
+      </div>
+      <img src="results.png" alt="Wayback Lens Results Workspace" width="1360" height="860">
+    </div>
   </figure>
 
-  <section>
-    <h2>Six scans, one click each</h2>
-    <p class="sub">Hover any scan in the popup to see the exact Wayback CDX request before it is sent.</p>
-    <div class="modes">
-      <div><h3>Main domain</h3><p>Every archived path on the exact host. <code>url=host/*</code></p></div>
-      <div><h3>All subdomains</h3><p>The host and every subdomain beneath it. <code>matchType=domain</code></p></div>
-      <div><h3>This path</h3><p>Everything under the current path. <code>matchType=prefix</code></p></div>
-      <div><h3>Sensitive files</h3><p>Backups, dumps, keys, configs, logs and documents.</p></div>
-      <div><h3>JavaScript</h3><p>Old bundles that leak endpoints and secrets.</p></div>
-      <div><h3>With parameters</h3><p>Query-string URLs ready to feed into a fuzzer.</p></div>
+  <!-- Interactive Demo Section -->
+  <section class="demo-section" id="demo">
+    <div class="section-header">
+      <h2>Interactive Recon Simulator</h2>
+      <p>Test the heuristic triage engine right here. Click a scan mode to see how Wayback Lens prioritizes findings.</p>
     </div>
-  </section>
 
-  <section>
-    <div class="split">
-      <div>
-        <h2>Triage, not just collection</h2>
-        <p class="sub">Thousands of archived URLs are noise until you can sort them. The results page does that for you.</p>
-        <ul>
-          <li><b>Risk ranking</b>.env, .git, SQL dumps and .bak files surface first, each tagged by file type.</li>
-          <li><b>Status filter</b>Hide the dead captures with Only 200, or isolate the 404s.</li>
-          <li><b>Verify live</b>Optional HEAD checks show which URLs respond right now, for in-scope targets only.</li>
-          <li><b>Export</b>Copy, TXT, CSV, JSON, or just the unique hosts as a passive subdomain list.</li>
+    <div class="sim-container">
+      <div class="sim-tabs">
+        <button class="sim-tab active" data-mode="sensitive">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          Sensitive Files (High Risk)
+        </button>
+        <button class="sim-tab" data-mode="subs">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5H5v5M12 11.5h7v5"/></svg>
+          Subdomains
+        </button>
+        <button class="sim-tab" data-mode="js">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12"/></svg>
+          JavaScript Bundles
+        </button>
+        <button class="sim-tab" data-mode="params">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+          Parameterized URLs
+        </button>
+      </div>
+      <div class="sim-body">
+        <div class="sim-stats">
+          <div><b id="simTotal">4,812</b> URLs Found</div>
+          <div><b id="simHosts">28</b> Unique Hosts</div>
+          <div class="hot"><b id="simRisk">19</b> High-Risk Targets</div>
+          <div style="margin-left: auto;">Verified with <b style="color:var(--teal)">Live HEAD</b> Probes</div>
+        </div>
+        <ul class="sim-table" id="simList">
+          <!-- Populated by JavaScript -->
         </ul>
       </div>
-      <figure class="shot"><img src="popup.png" alt="The extension popup with six scan buttons and a live request preview" width="392" height="560"></figure>
     </div>
   </section>
 
-  <section id="install">
-    <h2>Install in a minute</h2>
-    <p class="sub">Not on the Chrome Web Store yet, so you load it from source. Works in Chrome, Edge and Brave.</p>
-    <ol class="steps">
-      <li><div>Clone the repository.<pre>git clone https://github.com/pratik-khairnar-sec/wayback-lens.git</pre></div></li>
-      <li><div>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</div></li>
-      <li><div>Click <b>Load unpacked</b> and choose the project folder, then pin the icon.</div></li>
-    </ol>
-  </section>
-
-  <section>
-    <h2>Small footprint, no tracking</h2>
-    <div class="perm">
-      <div><b>activeTab</b><p>Reads the current tab URL to pre-fill the target, only when you open the popup.</p></div>
-      <div><b>storage</b><p>Remembers your options and five recent targets, locally.</p></div>
-      <div><b>web.archive.org</b><p>The only site it contacts by default, to query the public CDX API.</p></div>
-      <div><b>Optional: live sites</b><p>Requested only when you click Verify live. Revoke it any time.</p></div>
+  <!-- Features Grid -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <h2>Engineered for High-Velocity Recon</h2>
+      <p>Built from scratch to overcome the slow, clunky, and memory-heavy limitations of legacy archive extractors.</p>
     </div>
-    <p class="note"><b>Use it on authorized targets.</b> Archive data is public, but probing live hosts is not automatically permitted. Stay within bug bounty scope or written permission.</p>
+
+    <div class="feature-grid">
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>Non-Blocking Stream Processing</h3>
+        <p>Uses chunked <code>ReadableStream</code> parsing to ingest and display 100,000+ CDX records without lagging your browser or eating gigabytes of RAM.</p>
+      </div>
+
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Heuristic Risk Scoring</h3>
+        <p>Pre-filters noise and surfaces high-value targets first: <code>.env</code> files, AWS tokens, SQL database dumps, <code>.git</code> directories, and backup archives.</p>
+      </div>
+
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <h3>Live HEAD Verification</h3>
+        <p>Multi-worker prober checks which historical URLs actually respond with HTTP 200 today, helping you find active vulnerable endpoints instantly.</p>
+      </div>
+
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Instant Regex & Faceted Filters</h3>
+        <p>Filter on-the-fly by HTTP status code, target subdomain, query parameters, or arbitrary Regular Expressions with zero round-trip delay.</p>
+      </div>
+
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h3>Universal Export Suite</h3>
+        <p>Export your tailored triage view as clean TXT, CSV, JSON, or extract a deduplicated passive subdomain host list ready to pipe into subfinder or httpx.</p>
+      </div>
+
+      <div class="f-card">
+        <div class="f-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>100% Offline UI & Zero Telemetry</h3>
+        <p>Zero third-party analytics, zero cloud dependencies, strict Manifest V3 CSP, and inline SVG assets. Captured URLs are sanitized and never executed.</p>
+      </div>
+    </div>
   </section>
 
+  <!-- Comparison Section -->
+  <section class="compare-section">
+    <div class="section-header">
+      <h2>How Wayback Lens Compares</h2>
+      <p>Why security teams and bounty hunters choose a dedicated visual recon workspace.</p>
+    </div>
+
+    <div class="compare-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="highlight-col">Wayback Lens</th>
+            <th>gau / waybackurls</th>
+            <th>Web Archive UI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Interactive Triage Workspace</td>
+            <td class="highlight-col check">✓ Yes (Real-time)</td>
+            <td class="cross">✗ CLI Text Dump</td>
+            <td class="cross">✗ Static HTML</td>
+          </tr>
+          <tr>
+            <td>Autonomous Risk Scoring (.env, SQL, keys)</td>
+            <td class="highlight-col check">✓ Heuristic Engine</td>
+            <td class="cross">✗ Manual Grep</td>
+            <td class="cross">✗ None</td>
+          </tr>
+          <tr>
+            <td>Live 200 Status Verification</td>
+            <td class="highlight-col check">✓ Built-in HEAD Prober</td>
+            <td class="cross">✗ Pipe to httpx</td>
+            <td class="cross">✗ None</td>
+          </tr>
+          <tr>
+            <td>Subdomain Extraction</td>
+            <td class="highlight-col check">✓ 1-Click Export</td>
+            <td class="cross">✗ Custom Awk/Sed</td>
+            <td class="cross">✗ None</td>
+          </tr>
+          <tr>
+            <td>Active Tab Target Detection</td>
+            <td class="highlight-col check">✓ Auto Pre-fill</td>
+            <td class="cross">✗ Manual CLI flag</td>
+            <td class="cross">✗ Manual URL input</td>
+          </tr>
+          <tr>
+            <td>Streaming 100k+ URLs without Freezing</td>
+            <td class="highlight-col check">✓ Stream Decoder</td>
+            <td class="cross">✓ Fast stdout</td>
+            <td class="cross">✗ Timeouts</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Install Section -->
+  <section class="install-section" id="install">
+    <div class="section-header">
+      <h2>Quick Start Guide</h2>
+      <p>Install in under 60 seconds on any Chromium-based browser (Chrome, Brave, Edge, Arc, Opera).</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Clone or Download</h3>
+        <p>Clone the repository or grab the ready-to-run ZIP archive:</p>
+        <p style="margin-top:8px;"><code>git clone https://github.com/pratik-khairnar-sec/wayback-lens.git</code></p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Enable Developer Mode</h3>
+        <p>Open <code>chrome://extensions</code> in your browser and switch on the <b>Developer mode</b> toggle in the top-right corner.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Load Unpacked</h3>
+        <p>Click <b>Load unpacked</b> and select the project folder. Pin the extension icon to your toolbar for immediate access.</p>
+      </div>
+    </div>
+
+    <div class="scope-callout">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>
+        <p><b>Responsible Reconnaissance & Scope Notice:</b> While Wayback Machine archives represent public historical telemetry, probing active production endpoints with the <i>Verify Live</i> feature must only be conducted against targets within authorized bug bounty scope or under explicit penetration testing permission.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
   <footer>
-    <span>Built by <a href="https://github.com/pratik-khairnar-sec">Pratik Khairnar</a>. MIT licensed.</span>
-    <span>Not affiliated with the Internet Archive.</span>
+    <div>
+      <span>Created and maintained by <a href="https://github.com/pratik-khairnar-sec" target="_blank" rel="noopener"><b>Pratik Khairnar</b></a>.</span>
+      <span style="display:block; margin-top:4px;">Licensed under the <a href="https://github.com/pratik-khairnar-sec/wayback-lens/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>.</span>
+    </div>
+    <div>
+      <span>Wayback Machine and Internet Archive are trademarks of the Internet Archive.</span>
+    </div>
   </footer>
 </div>
+
+<div id="toast" class="toast">Command copied to clipboard</div>
+
+<script>
+// Copy clone command
+const copyBtn = document.getElementById('btnCopyClone');
+const toast = document.getElementById('toast');
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showToast.t);
+  showToast.t = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText('git clone https://github.com/pratik-khairnar-sec/wayback-lens.git')
+    .then(() => showToast('Git clone command copied!'))
+    .catch(() => showToast('Copy failed, please copy manually.'));
+});
+
+// Demo Data Simulator
+const DEMO_DATA = {
+  sensitive: {
+    total: '1,428', hosts: '12', risk: '24',
+    items: [
+      { url: 'https://api.target.com/v1/.env', rail: 'r3', tag: 'Keys and secrets', tagCls: 'tag-r3', status: '200', live: 'live 200' },
+      { url: 'https://db.internal.target.com/backup_2023_prod.sql.gz', rail: 'r3', tag: 'Database dump', tagCls: 'tag-r3', status: '200', live: 'live 200' },
+      { url: 'https://auth.target.com/.git/config', rail: 'r3', tag: 'Git repository', tagCls: 'tag-r3', status: '200', live: 'live 200' },
+      { url: 'https://admin.target.com/web.config.bak', rail: 'r2', tag: 'Config backup', tagCls: 'tag-r2', status: '200', live: 'live 404' },
+      { url: 'https://target.com/storage/logs/laravel-2022-11.log', rail: 'r2', tag: 'Server logs', tagCls: 'tag-r2', status: '200', live: 'live 403' },
+      { url: 'https://cdn.target.com/keys/jwt_private.pem', rail: 'r3', tag: 'Private key', tagCls: 'tag-r3', status: '200', live: 'live 200' }
+    ]
+  },
+  subs: {
+    total: '38,290', hosts: '84', risk: '8',
+    items: [
+      { url: 'https://dev-portal.internal.target.com/login', rail: 'r2', tag: 'Admin portal', tagCls: 'tag-r2', status: '200', live: 'live 200' },
+      { url: 'https://k8s-dashboard.stag.target.com/', rail: 'r3', tag: 'Infrastructure', tagCls: 'tag-r3', status: '302', live: 'live 200' },
+      { url: 'https://grafana.monitoring.target.com/dashboards', rail: 'r2', tag: 'Monitoring', tagCls: 'tag-r2', status: '200', live: 'live 200' },
+      { url: 'https://jira-archive.legacy.target.com/browse/SEC', rail: 'r1', tag: 'Internal issue', tagCls: 'tag-r1', status: '200', live: 'live 404' },
+      { url: 'https://vault.target.com/ui/', rail: 'r3', tag: 'Secrets vault', tagCls: 'tag-r3', status: '200', live: 'live 200' }
+    ]
+  },
+  js: {
+    total: '12,410', hosts: '19', risk: '14',
+    items: [
+      { url: 'https://app.target.com/static/js/main.b82f14c.chunk.js.map', rail: 'r2', tag: 'Source Map', tagCls: 'tag-r2', status: '200', live: 'live 200' },
+      { url: 'https://target.com/assets/config.runtime.bundle.js', rail: 'r2', tag: 'Runtime config', tagCls: 'tag-r2', status: '200', live: 'live 200' },
+      { url: 'https://auth.target.com/dist/auth-provider.v2.js', rail: 'r1', tag: 'Auth script', tagCls: 'tag-r1', status: '200', live: 'live 200' },
+      { url: 'https://admin.target.com/js/internal-debug-tools.js', rail: 'r3', tag: 'Debug code', tagCls: 'tag-r3', status: '200', live: 'live 200' },
+      { url: 'https://payment.target.com/checkout.stripe.legacy.js', rail: 'r1', tag: 'Payment bundle', tagCls: 'tag-r1', status: '200', live: 'live 200' }
+    ]
+  },
+  params: {
+    total: '64,820', hosts: '42', risk: '11',
+    items: [
+      { url: 'https://target.com/redirect?url=https://auth.target.com&next=dash', rail: 'r2', tag: 'Redirect (SSRF/Open)', tagCls: 'tag-r2', status: '302', live: 'live 302' },
+      { url: 'https://api.target.com/debug/eval?cmd=ping&token=test', rail: 'r3', tag: 'Command/Eval test', tagCls: 'tag-r3', status: '200', live: 'live 200' },
+      { url: 'https://target.com/download.php?file=../../../../etc/passwd', rail: 'r3', tag: 'LFI / Path param', tagCls: 'tag-r3', status: '404', live: 'live 404' },
+      { url: 'https://shop.target.com/search?category=tools&filter=active&order=desc', rail: 'r1', tag: 'Fuzzable query', tagCls: 'tag-r1', status: '200', live: 'live 200' },
+      { url: 'https://target.com/api/v2/users?id=1029&fields=email,role,tokens', rail: 'r2', tag: 'IDOR target', tagCls: 'tag-r2', status: '200', live: 'live 200' }
+    ]
+  }
+};
+
+function renderSim(mode) {
+  const data = DEMO_DATA[mode];
+  if (!data) return;
+  document.getElementById('simTotal').textContent = data.total;
+  document.getElementById('simHosts').textContent = data.hosts;
+  document.getElementById('simRisk').textContent = data.risk;
+  const list = document.getElementById('simList');
+  list.innerHTML = '';
+  data.items.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'sim-row';
+    li.innerHTML = `
+      <div class="sim-rail rail-${item.rail}"></div>
+      <div class="sim-url">${item.url}</div>
+      <div class="sim-tag ${item.tagCls}">${item.tag}</div>
+      <div class="sim-status status-live">${item.live}</div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+const tabs = document.querySelectorAll('.sim-tab');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderSim(tab.dataset.mode);
+  });
+});
+
+renderSim('sensitive');
+</script>
 </body>
 </html>

@@ -45,7 +45,8 @@
       <div class="tools">
         <div class="search">
           <svg class="i"><use href="#i-search"/></svg>
-          <input id="q" type="search" spellcheck="false" autocomplete="off" placeholder="Filter, for example admin, api/v1 or backup">
+          <input id="q" type="search" spellcheck="false" autocomplete="off" placeholder="Filter, e.g. admin, api/v1 or backup">
+          <kbd class="kbd" title="Press / to focus">/</kbd>
           <button id="rx" class="tog" title="Treat the filter as a regular expression" aria-pressed="false">.*</button>
         </div>
         <label class="chip"><input type="checkbox" id="onlyParams"><span>Has parameters</span></label>
@@ -57,6 +58,7 @@
           <option value="old">Oldest capture</option>
           <option value="az">A to Z</option>
         </select>
+        <button id="resetFilters" class="ghost" title="Reset all active filters" hidden><svg class="i"><use href="#i-retry"/></svg>Reset</button>
       </div>
 
       <div class="bar2">

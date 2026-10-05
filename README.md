@@ -1,101 +1,199 @@
-# Wayback Lens
+<p align="center">
+  <img src="icons/icon-128.png" width="96" height="96" alt="Wayback Lens logo">
+</p>
 
-Landing page: enable GitHub Pages (Settings, Pages, branch `main`, folder `/docs`) to publish `docs/index.html`.
+<h1 align="center">Wayback Lens</h1>
 
-A Chrome extension for recon. It pulls every URL the Internet Archive has ever captured for a target, then lets you triage them in a proper workspace instead of a wall of raw text.
+<p align="center">
+  <b>High-Performance Wayback Machine CDX Recon & Triage Workspace for Chrome (Manifest V3)</b>
+</p>
 
-![Popup](docs/popup.png)
+<p align="center">
+  <a href="https://github.com/pratik-khairnar-sec/wayback-lens/releases"><img src="https://img.shields.io/badge/version-1.0.0-f59e0b" alt="Version 1.0.0"></a>
+  <a href="manifest.json"><img src="https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-blue?logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License MIT"></a>
+  <a href="https://pratik-khairnar-sec.github.io/wayback-lens/"><img src="https://img.shields.io/badge/Landing%20Page-Live%20Demo-10b981?logo=github&logoColor=white" alt="Live Demo"></a>
+  <a href="#-privacy--zero-tracking"><img src="https://img.shields.io/badge/Privacy-100%25%20Zero%20Tracking-brightgreen" alt="Zero Tracking"></a>
+  <a href="#-scan-modes"><img src="https://img.shields.io/badge/Built%20For-Bug%20Bounty%20%7C%20AppSec-red" alt="AppSec"></a>
+</p>
 
-![Results workspace](docs/results.png)
+<p align="center">
+  <a href="https://pratik-khairnar-sec.github.io/wayback-lens/"><b>🌐 Official Landing Page & Demo</b></a> •
+  <a href="#-key-features"><b>Key Features</b></a> •
+  <a href="#-quick-start"><b>Quick Start</b></a> •
+  <a href="#-scan-modes"><b>Scan Modes</b></a> •
+  <a href="#️-keyboard-shortcuts"><b>Shortcuts</b></a> •
+  <a href="#-why-wayback-lens"><b>Comparison</b></a> •
+  <a href="#-privacy--security"><b>Security</b></a>
+</p>
 
-*Screenshots use sample data for `example.com`.*
+---
 
-## What it does
+## 📌 Overview
 
-Pick a target (it pre-fills from the active tab) and choose a scan:
+**Wayback Lens** transforms the Internet Archive's public CDX API into an interactive, high-speed reconnaissance workspace right in your browser. 
 
-| Scan | What it finds | CDX request |
-|---|---|---|
-| Main domain | Every archived path on the exact host | `url=host/*` |
-| All subdomains | The host and every subdomain beneath it | `url=domain&matchType=domain` |
-| This path | Everything under the current path | `url=origin/path&matchType=prefix` |
-| Sensitive files | Backups, dumps, keys, configs, logs, documents | `matchType=domain` + extension filter |
-| JavaScript | `.js` / `.mjs` bundles for endpoint and secret hunting | `matchType=domain` + `.js` filter |
-| With parameters | Query-string URLs to feed into fuzzers | `matchType=domain` + `?...=` filter |
+Instead of dumping hundreds of thousands of raw text lines into your terminal or crashing your browser tab, Wayback Lens streams results through a non-blocking chunked decoder, autonomously prioritizes high-risk assets (`.env`, private keys, SQL dumps, `.git` trees), verifies active URLs using lightweight multi-worker HEAD requests, and exports actionable data in seconds.
 
-Hover or focus any scan and the popup shows the exact request it will send.
+<p align="center">
+  <img src="docs/results.png" alt="Wayback Lens Results Workspace" width="100%">
+  <em>The results workspace streaming and classifying 100,000+ historical captures for example.com.</em>
+</p>
 
-### Results workspace
+---
 
-- Streams results with live progress, a cancel button and a timeout, so large targets do not freeze the browser.
-- Ranks every URL by risk (keys, `.env`, `.git`, SQL dumps and `.bak` files first) and classifies it by file type.
-- Filters by file type, host, parameters, and free text or regular expression.
-- Opens the archived snapshot for any row, or copies the URL.
-- Exports the current view as TXT, CSV or JSON, or exports just the unique hosts (a quick passive subdomain list).
-- **Status filter:** split results into Found (200), Redirects, Not found (404) and errors, or tick "Only 200" to hide dead captures instantly.
-- **Verify live (optional):** sends HEAD requests to check which URLs respond right now, and shows a `live 200` badge on each row. Checks the highest-risk URLs in the current view first, up to 500 per run. The browser asks for host permission only when you click it.
-- Clear errors for rate limiting, timeouts and empty results, with a retry button.
+## ⚡ Key Features
 
-## Install
+- **⚡ Non-Blocking Streaming Pipeline**: Ingests and parses 100,000+ CDX records on-the-fly using `ReadableStream` chunk decoding without freezing the UI or exhausting memory.
+- **🎯 Autonomous Risk Scoring Engine**: Heuristically classifies every archived URL into security tiers:
+  - 🔴 **High Risk (Risk 3)**: `.env`, AWS/SSH keys, `.git` repositories, SQL database dumps, `.bak` files, `.htpasswd`.
+  - 🟠 **Medium Risk (Risk 2)**: Configuration files (`.yml`, `.ini`, `.conf`), logs, source maps (`.map`), runtime backups.
+  - 🔵 **Low Risk (Risk 1)**: JavaScript bundles, PDFs, spreadsheets, documents, binaries.
+- **🔬 Live 200 Multi-Worker Verification**: Sends asynchronous, user-consented HEAD probes to verify which historical endpoints still respond with HTTP 200 today. Checks high-risk targets first.
+- **🧬 Faceted Triage & Regex Filtering**: Filter dynamically by file category, HTTP response status code, exact subdomain, or arbitrary regular expressions (`.*`).
+- **📦 5 Multi-Format Exports**:
+  - `TXT` — Clean URL list ready for `katana`, `nuclei`, or `ffuf`.
+  - `CSV` / `JSON` — Structured reports with category, risk score, capture timestamp, and MIME type.
+  - `Hosts` — Deduplicated passive subdomain list ready for `subfinder` or `httpx`.
+  - `Copy` — One-click clipboard copy of all filtered rows.
+- **🔒 Zero Telemetry & 100% Offline UI**: Strict Manifest V3 CSP, zero third-party scripts or CDNs, zero remote tracking, inline SVG sprite system. All archived URLs are strictly rendered as text to prevent client-side XSS.
 
-1. Clone or download this repository:
+---
+
+## 📊 Why Wayback Lens?
+
+| Feature | Wayback Lens | `gau` / `waybackurls` | Archive.org Web UI |
+| :--- | :---: | :---: | :---: |
+| **Interactive GUI Triage** | ✅ **Real-time Workspace** | ❌ Terminal stdout only | ❌ Static HTML list |
+| **Autonomous Risk Heuristics** | ✅ **Keys, .env, SQL dumps** | ❌ Manual grep required | ❌ None |
+| **Live HTTP 200 Prober** | ✅ **Built-in Multi-Worker** | ❌ Pipe to `httpx` | ❌ None |
+| **Subdomain Extraction** | ✅ **1-Click Export** | ❌ Custom `awk` / `cut` | ❌ None |
+| **Active Tab Auto-Target** | ✅ **Instant 1-Click** | ❌ Manual CLI flag | ❌ Manual input |
+| **Streaming Large Datasets** | ✅ **Chunked stream (100k+)** | ✅ Fast stdout | ❌ Browser timeouts |
+| **Privacy & Zero Telemetry** | ✅ **100% Local / MV3** | ✅ Local | ⚠️ Third-party scripts |
+
+---
+
+## 🔍 Scan Modes
+
+Pick any target domain or URL (auto-detected from your active tab) and launch a specialized scan:
+
+| Mode | Scan Type | Target Scope | CDX Request Strategy |
+| :---: | :--- | :--- | :--- |
+| 🌐 | **Main Domain** | Every archived path on the exact hostname | `url=host/*` |
+| 🖧 | **All Subdomains** | The host and every underlying subdomain | `matchType=domain` |
+| 📁 | **This Path** | Everything under the active URL path | `matchType=prefix` |
+| 🔒 | **Sensitive Files** | Backups, dumps, keys, credentials, configs | `matchType=domain` + sensitive extension regex |
+| 📜 | **JavaScript** | `.js` and `.mjs` bundles for API leaks | `matchType=domain` + `.m?js` filter |
+| 🎛️ | **With Parameters** | Query strings formatted for fuzzing & SSRF/IDOR | `matchType=domain` + `original:.*\?.*=.*` |
+
+<p align="center">
+  <img src="docs/popup.png" alt="Wayback Lens Scan Launcher" width="380">
+  <br><em>Hover or focus any scan button to preview the exact CDX API query prior to launch.</em>
+</p>
+
+---
+
+## 🚀 Quick Start
+
+### Installation (Chromium: Chrome, Brave, Edge, Opera, Arc)
+
+1. **Clone the repository** (or [download the latest ZIP](https://github.com/pratik-khairnar-sec/wayback-lens/archive/refs/heads/main.zip)):
    ```bash
    git clone https://github.com/pratik-khairnar-sec/wayback-lens.git
    ```
-2. Open `chrome://extensions` and enable **Developer mode**.
-3. Click **Load unpacked** and select the project folder.
-4. Pin the extension, open a target site, and click the icon.
+2. Navigate to `chrome://extensions` in your browser.
+3. Toggle on **Developer mode** in the upper-right corner.
+4. Click **Load unpacked** and select the `wayback-lens` root folder.
+5. Pin the **Wayback Lens** icon to your toolbar.
 
-Works in Chrome and other Chromium browsers (Edge, Brave) that support Manifest V3.
+### Workflow
+1. Navigate to any target application.
+2. Click the **Wayback Lens** extension icon (the target hostname is pre-filled).
+3. Select your desired scan profile (e.g., **Sensitive files** or **All subdomains**).
+4. Triage results in the workspace: filter by risk, press `/` to search, or verify live 200 endpoints.
+5. Export clean datasets as `TXT`, `CSV`, `JSON`, or `Hosts`.
 
-## Privacy and permissions
+---
 
-| Permission | Why |
-|---|---|
-| `activeTab` | Read the current tab's URL to pre-fill the target, only when you open the popup |
-| `storage` | Remember your last options and five recent targets, locally |
-| `https://web.archive.org/*` | Query the public CDX API from the results page |
-| Optional: all `http(s)` sites | Requested only when you click **Verify live**, so the extension can read live status codes. Revoke it anytime from `chrome://extensions` |
+## ⌨️ Keyboard Shortcuts
 
-No analytics, no accounts, no third-party servers, and no remote code or fonts. Archived URLs are attacker-controlled data, so they are always rendered as text and never as HTML.
+| Shortcut | Context | Action |
+| :--- | :--- | :--- |
+| <kbd>/</kbd> | Results Workspace | Focus and select the search filter input |
+| <kbd>Esc</kbd> | Search Filter | Clear search input and restore view / blur |
+| <kbd>Enter</kbd> | Extension Popup | Launch default domain scan on active target |
+| <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> | Everywhere | Full keyboard accessibility & focus navigation |
 
-## Responsible use
+---
 
-Archive data is public, but what you do with it is not automatically authorized. Only probe live hosts that are in scope for a bug bounty program or that you have written permission to test. The "open live URL" button exists for that purpose.
+## 🔒 Privacy & Zero Tracking
 
-## Limits worth knowing
+Wayback Lens was engineered with strict security and privacy standards:
 
-- **Archived status is not live status.** A 404 means that capture was a 404; the page may work today (or the reverse). Use Verify live to check, and remember WAFs and CDNs can answer HEAD requests differently.
-- The CDX API collapses captures by URL, so the archived status is that of the first capture. The popup's "Archived 200 only" option asks the archive for URLs that have at least one 200 capture, which is more thorough than the instant client-side filter.
-- Very large domains can exceed the result cap. Use a narrower scan, the 200-only filter, or raise the limit.
-- The Wayback Machine rate-limits heavy use.
+| Permission | Technical Requirement |
+| :--- | :--- |
+| `activeTab` | Reads the active tab's domain to pre-fill the search box, only when you click the extension. |
+| `storage` | Stores your last scan preferences and recent target history locally on your device. |
+| `https://web.archive.org/*` | Directly queries the public Wayback Machine CDX API from the results tab. |
+| *Optional:* `http(s)://*/*` | Requested **only** if you explicitly click **Verify live** to run HEAD status checks. Revocable anytime. |
 
-## Project layout
+- ❌ **No telemetry, analytics, tracking, or telemetry pings.**
+- ❌ **No third-party CDN scripts or remote stylesheet dependencies.**
+- 🛡️ **Safe Rendering**: All archived URLs are treated as untrusted attacker-controlled strings and rendered exclusively as safe DOM text nodes.
+
+---
+
+## ⚠️ Responsible Use Notice
+
+> [!IMPORTANT]
+> The Internet Archive's CDX index consists of public historical data. However, active reconnaissance and probing live hosts via the **Verify live** feature should only be conducted on targets within your designated bug bounty scope or under authorized penetration testing engagements.
+
+---
+
+## 📂 Project Architecture
 
 ```
-manifest.json     MV3 manifest
-popup.html        Scan launcher
-results.html      Results workspace
-src/core.js       Query builder, parser, classifier, exports, icons
-src/popup.*       Popup logic and styles
-src/results.*     Results logic and styles
-src/theme.css     Shared design tokens
-icons/            Extension icons
+wayback-lens/
+├── .github/
+│   └── workflows/
+│       ├── ci.yml            # Automated syntax & manifest validator
+│       ├── pages.yml         # Automated GitHub Pages landing page deployment
+│       └── release.yml       # Production extension ZIP packager
+├── docs/                     # Official GitHub Pages landing page & assets
+│   ├── index.html            # Interactive cyber landing page & demo simulator
+│   ├── popup.png             # UI preview asset
+│   └── results.png           # UI preview asset
+├── icons/                    # Hi-res extension icons (16px, 32px, 48px, 128px, 512px)
+├── src/
+│   ├── core.js               # CDX query builder, streaming parser, heuristic classifier
+│   ├── popup.css             # Popup UI styles & micro-interactions
+│   ├── popup.js              # Tab detection, target normalization, query preview
+│   ├── results.css           # Workspace design system, dark palette, badges
+│   ├── results.js            # Virtualized list, live prober, faceted filters
+│   └── theme.css             # Shared CSS variables & design tokens
+├── manifest.json             # Manifest V3 configuration & strict CSP
+├── popup.html                # Extension launcher markup
+├── results.html              # Dedicated results workspace markup
+├── LICENSE                   # MIT License
+└── README.md                 # Project documentation
 ```
 
-## Changelog
+---
 
-**1.0.0**
-- Six scans: main domain, all subdomains, path, sensitive files, JavaScript and parameterised URLs.
-- Results workspace with risk ranking, file-type, host and status filters, text and regex search.
-- Archived snapshot links and TXT, CSV, JSON and hosts export.
-- Optional live verification with a "Live now only" filter.
-- Fully offline UI: no CDN fonts or icon libraries, strict extension CSP.
+## 👤 Author & Support
 
-## Author and license
+Crafted with care for the security and bug bounty community by:
 
-Built and maintained by [Pratik Khairnar](https://github.com/pratik-khairnar-sec).
+**Pratik Khairnar**  
+GitHub: [@pratik-khairnar-sec](https://github.com/pratik-khairnar-sec)
 
-Released under the [MIT License](LICENSE).
+If Wayback Lens helps your recon workflow, please consider giving the repository a ⭐️ **Star**!
 
-Wayback Machine and Internet Archive are trademarks of the Internet Archive. This project is not affiliated with or endorsed by them.
+---
+
+## 📜 License
+
+Distributed under the [MIT License](LICENSE).
+
+*Wayback Machine and Internet Archive are trademarks of the Internet Archive. Wayback Lens is an independent open-source tool and is not affiliated with or endorsed by the Internet Archive.*

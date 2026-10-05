@@ -51,6 +51,8 @@ main { padding: 14px 22px 60px; min-width: 0; }
 .search.bad { border-color: var(--red); }
 .search input { flex: 1; background: none; border: 0; outline: 0; color: var(--text); font-family: var(--mono); font-size: 12.5px; }
 .search input::-webkit-search-cancel-button { filter: invert(.6); }
+.kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--faint); background: var(--ink); pointer-events: none; }
+.search:focus-within .kbd { display: none; }
 .tog { font-family: var(--mono); padding: 3px 8px; border-radius: 6px; color: var(--mute); border: 1px solid transparent; }
 .tog[aria-pressed="true"] { color: var(--amber-ink); background: var(--amber); }
 .chip { display: flex; }
