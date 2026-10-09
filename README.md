@@ -15,6 +15,8 @@
   <a href="https://pratik-khairnar-sec.github.io/wayback-lens/"><img src="https://img.shields.io/badge/Landing%20Page-Live%20Demo-10b981?logo=github&logoColor=white" alt="Live Demo"></a>
   <a href="#-privacy--zero-tracking"><img src="https://img.shields.io/badge/Privacy-100%25%20Zero%20Tracking-brightgreen" alt="Zero Tracking"></a>
   <a href="#-scan-modes"><img src="https://img.shields.io/badge/Built%20For-Bug%20Bounty%20%7C%20AppSec-red" alt="AppSec"></a>
+  <a href="https://pratik-khairnar-sec.medium.com/"><img src="https://img.shields.io/badge/Medium-Deep_Dive_Writeup-black.svg?logo=medium" alt="Medium"></a>
+  <a href="https://x.com/PratikSec/status/2108584870293451190"><img src="https://img.shields.io/badge/X-Official_Thread-000000.svg?logo=x" alt="X Thread"></a>
 </p>
 
 <p align="center">
