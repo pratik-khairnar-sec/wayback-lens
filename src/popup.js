@@ -4,7 +4,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const input = $('target'), scope = $('scope'), modesEl = $('modes'), qprev = $('qprev');
   const live = $('live'), limit = $('limit'), recentEl = $('recent'), toast = $('toast');
   const DEFAULT_PREVIEW = qprev.textContent;
-  const store = chrome.storage.local;
+  const store = window.chrome?.storage?.local || {
+    get: async () => ({ opts: { limit: 100000 }, recent: ['example.com', 'tesla.com', 'hackerone.com'] }),
+    set: async () => {}
+  };
 
   /* scan buttons (generated from WB.MODES so popup and results never drift apart) */
   for (const [key, m] of Object.entries(WB.MODES)) {
@@ -65,11 +68,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       recentEl.append(b);
     }
   }
-  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+  window.chrome?.tabs?.query?.({ active: true, currentWindow: true }, tabs => {
     const url = tabs[0]?.url;
     if (url && /^https?:/.test(url)) input.value = url;
     refreshScope();
   });
+  if (!input.value) {
+    input.value = 'https://example.com';
+    refreshScope();
+  }
 
   input.addEventListener('input', refreshScope);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') run('domain'); });
