@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Wayback Lens",
-  "version": "1.0.0",
-  "description": "Find archived URLs, subdomains, JavaScript and sensitive files from the Wayback Machine, with filtering and export. Built for recon.",
+  "version": "2.0.0",
+  "description": "Find archived URLs, subdomains, APIs, sensitive files, and parameter fuzzing wordlists from the Wayback Machine. Built for recon & AppSec.",
   "author": "Pratik Khairnar",
   "homepage_url": "https://github.com/pratik-khairnar-sec/wayback-lens",
   "minimum_chrome_version": "105",

@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-10-15
+
+### Major Release — Parameter Mining, API Discovery & Attack Surface Workflows
+
+Wayback Lens v2.0 upgrades the workspace into an end-to-end attack surface discovery and fuzzing preparation suite.
+
+### Added
+- **Seventh Scan Profile — `APIs & Swagger`**:
+  - Focuses CDX discovery directly on REST APIs, GraphQL routes, Swagger documentation, and OpenAPI schemas (`/api/v*`, `/graphql`, `/swagger.json`, `/openapi.json`, `/api-docs`).
+- **Query Parameter Mining & Vulnerability Archetyping Engine**:
+  - Automatically parses all query string keys across ingested datasets.
+  - Heuristically tags parameters into high-impact security archetypes:
+    - 🎯 **SSRF / Open Redirect**: `url`, `dest`, `redirect`, `next`, `return_to`, `target`, `uri`, `domain`.
+    - 📁 **LFI / Path Traversal**: `file`, `document`, `folder`, `root`, `page`, `include`.
+    - 💉 **SQLi / IDOR**: `id`, `user_id`, `uid`, `account`, `order_id`, `role`, `query`, `search`.
+    - 🔑 **Auth & Tokens**: `token`, `api_key`, `secret`, `jwt`, `access_token`, `auth`, `signature`.
+- **Fuzzing Wordlist Export (`Params`)**:
+  - One-click export of unique parameter names (`params.txt`) ready to pipe into `ffuf`, `arjun`, `x8`, or `wfuzz`.
+- **Temporal Recon (Capture Year Faceting)**:
+  - Added historical year facet to filter targets by capture era (e.g. legacy endpoints archived in 2016-2020) to find forgotten zombie assets.
+- **Ready-to-Run CLI Pipelines Generator**:
+  - Integrated terminal command generator tailored to current target scope:
+    - `nuclei`: Vulnerability scan against discovered URLs.
+    - `ffuf`: Parameter fuzzing with exported wordlists.
+    - `httpx`: Subdomain resolution, status codes, and tech stack detection.
+    - `dalfox`: Reflected/DOM XSS scanning on parameterized targets.
+    - `sqlmap`: Batch SQL injection testing.
+    - `arjun`: Passive parameter analysis.
+- **External OSINT Pivots Modal**:
+  - Direct 1-click reconnaissance pivots into Shodan, crt.sh (Certificate Transparency), URLScan.io, VirusTotal, AlienVault OTX, and specialized Google Dorks.
+- **Visual Attack Surface Indicators**:
+  - Dedicated row badges for `API` endpoints and vulnerability parameter archetypes (`SSRF`, `LFI`, `SQLI`, `AUTH`).
+  - Added filter chips: `APIs & Docs` and `High-Impact Params`.
+  - Added "High-impact params first" sorting mode.
+- **Expanded Telemetry Stats Bar**:
+  - Now displays live counts for Total URLs, Subdomains, Parametric URLs, Unique Parameters, APIs, and High Risk assets.
+
+---
+
 ## [1.0.0] - 2026-10-05
 
 ### Initial Stable Release — Recon & Triage Workspace

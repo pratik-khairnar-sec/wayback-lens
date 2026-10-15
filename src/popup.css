@@ -27,6 +27,8 @@ h1 { font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
 .mode:hover, .mode:focus-visible { border-color: rgba(244,177,62,.55); background: var(--raise); }
 .mode:active { transform: scale(.98); }
 .mode[data-mode="sensitive"] svg.i { color: var(--red); }
+.mode[data-mode="api"] svg.i { color: var(--teal); }
+.mode:last-child:nth-child(odd) { grid-column: 1 / -1; }
 
 .preview { margin-top: 12px; padding: 9px 11px; background: #0a0e14; border: 1px dashed var(--line);
   border-radius: 8px; display: flex; gap: 10px; align-items: baseline; min-height: 34px; }

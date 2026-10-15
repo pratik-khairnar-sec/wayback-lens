@@ -5,11 +5,11 @@
 <h1 align="center">Wayback Lens</h1>
 
 <p align="center">
-  <b>High-Performance Wayback Machine CDX Recon & Triage Workspace for Chrome (Manifest V3)</b>
+  <b>High-Performance Wayback Machine CDX Recon, Parameter Mining & Triage Workspace for Chrome (Manifest V3)</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/pratik-khairnar-sec/wayback-lens/releases"><img src="https://img.shields.io/badge/version-1.0.0-f59e0b" alt="Version 1.0.0"></a>
+  <a href="https://github.com/pratik-khairnar-sec/wayback-lens/releases"><img src="https://img.shields.io/badge/version-2.0.0-f59e0b" alt="Version 2.0.0"></a>
   <a href="manifest.json"><img src="https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-blue?logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License MIT"></a>
   <a href="https://pratik-khairnar-sec.github.io/wayback-lens/"><img src="https://img.shields.io/badge/Landing%20Page-Live%20Demo-10b981?logo=github&logoColor=white" alt="Live Demo"></a>
@@ -24,9 +24,9 @@
 <p align="center">
   <a href="https://pratik-khairnar-sec.github.io/wayback-lens/"><b>🌐 Official Landing Page & Demo</b></a> •
   <a href="#-key-features"><b>Key Features</b></a> •
-  <a href="#-quick-start"><b>Quick Start</b></a> •
   <a href="#-scan-modes"><b>Scan Modes</b></a> •
-  <a href="#️-keyboard-shortcuts"><b>Shortcuts</b></a> •
+  <a href="#-cli-pipelines--osint-pivots"><b>CLI & OSINT</b></a> •
+  <a href="#-quick-start"><b>Quick Start</b></a> •
   <a href="#-why-wayback-lens"><b>Comparison</b></a> •
   <a href="#-privacy--security"><b>Security</b></a>
 </p>
@@ -35,44 +35,66 @@
 
 ## 📌 Overview
 
-**Wayback Lens** transforms the Internet Archive's public CDX API into an interactive, high-speed reconnaissance workspace right in your browser. 
+**Wayback Lens** transforms the Internet Archive's public CDX API into an interactive, high-speed reconnaissance and attack surface triage workspace right inside your browser.
 
-Instead of dumping hundreds of thousands of raw text lines into your terminal or crashing your browser tab, Wayback Lens streams results through a non-blocking chunked decoder, autonomously prioritizes high-risk assets (`.env`, private keys, SQL dumps, `.git` trees), verifies active URLs using lightweight multi-worker HEAD requests, and exports actionable data in seconds.
+Instead of dumping hundreds of thousands of raw text lines into your terminal or crashing your browser tab, Wayback Lens streams results through a non-blocking chunked decoder, autonomously prioritizes high-risk assets (`.env`, private keys, SQL dumps, `.git` trees), mines and classifies query parameters for fuzzing (`SSRF`, `LFI`, `SQLi`, `Auth`), isolates historical API specifications, verifies active URLs using multi-worker asynchronous HEAD requests, and generates ready-to-run CLI commands (`nuclei`, `ffuf`, `httpx`).
 
 <p align="center">
   <img src="docs/results.png" alt="Wayback Lens Results Workspace" width="100%">
-  <em>The results workspace streaming and classifying 100,000+ historical captures for example.com.</em>
+  <em>The results workspace streaming, classifying, and mining 100,000+ historical captures.</em>
 </p>
 
 ---
 
-## ⚡ Key Features
+## ⚡ Key Features (v2.0)
 
 - **⚡ Non-Blocking Streaming Pipeline**: Ingests and parses 100,000+ CDX records on-the-fly using `ReadableStream` chunk decoding without freezing the UI or exhausting memory.
 - **🎯 Autonomous Risk Scoring Engine**: Heuristically classifies every archived URL into security tiers:
   - 🔴 **High Risk (Risk 3)**: `.env`, AWS/SSH keys, `.git` repositories, SQL database dumps, `.bak` files, `.htpasswd`.
-  - 🟠 **Medium Risk (Risk 2)**: Configuration files (`.yml`, `.ini`, `.conf`), logs, source maps (`.map`), runtime backups.
+  - 🟠 **Medium Risk (Risk 2)**: Configuration files (`.yml`, `.ini`, `.conf`), logs, source maps (`.map`), runtime backups, APIs.
   - 🔵 **Low Risk (Risk 1)**: JavaScript bundles, PDFs, spreadsheets, documents, binaries.
-- **🔬 Live 200 Multi-Worker Verification**: Sends asynchronous, user-consented HEAD probes to verify which historical endpoints still respond with HTTP 200 today. Checks high-risk targets first.
-- **🧬 Faceted Triage & Regex Filtering**: Filter dynamically by file category, HTTP response status code, exact subdomain, or arbitrary regular expressions (`.*`).
-- **📦 5 Multi-Format Exports**:
-  - `TXT` — Clean URL list ready for `katana`, `nuclei`, or `ffuf`.
-  - `CSV` / `JSON` — Structured reports with category, risk score, capture timestamp, and MIME type.
+- **🎛️ Query Parameter Mining & Fuzzing Wordlists**:
+  - Automatically parses and dedupes all query parameters across the dataset.
+  - Tags high-impact parameters into security archetypes:
+    - 🎯 **SSRF / Open Redirect**: `url`, `dest`, `redirect`, `next`, `return_to`, `target`, `uri`, `domain`.
+    - 📁 **LFI / Path Traversal**: `file`, `document`, `folder`, `root`, `page`, `include`.
+    - 💉 **SQLi / IDOR**: `id`, `user_id`, `uid`, `account`, `order_id`, `role`, `query`, `search`.
+    - 🔑 **Auth & Tokens**: `token`, `api_key`, `secret`, `jwt`, `access_token`, `auth`, `signature`.
+- **🔌 Hidden API & Swagger / OpenAPI Discovery**:
+  - Isolates REST APIs, GraphQL endpoints, Swagger documentation, and OpenAPI schemas (`/api/v*`, `/graphql`, `/swagger.json`, `/openapi.json`, `/api-docs`).
+- **⏱️ Temporal Recon (Capture Year Faceting)**:
+  - Triage historical endpoints by specific capture years (e.g., forgotten assets archived in 2016–2020) to uncover unmaintained zombie infrastructure.
+- **💻 Ready-to-Run CLI Pipelines Generator**:
+  - 1-click modal to generate and copy targeted terminal commands for `nuclei`, `ffuf`, `httpx`, `dalfox`, `sqlmap`, and `arjun`.
+- **🔍 Instant External OSINT Pivots**:
+  - One-click pivots for the target domain into Shodan, Certificate Transparency (`crt.sh`), URLScan.io, VirusTotal, AlienVault OTX, and specialized Google Dorks.
+- **🔬 Live 200 Multi-Worker Verification**:
+  - Sends asynchronous, user-consented HEAD probes to verify which historical endpoints still respond with HTTP 200 today. Checks high-risk targets first.
+- **📦 6 Multi-Format Exports**:
+  - `TXT` — Clean URL list ready for `katana`, `nuclei`, or `gau`.
+  - `Params` — Deduplicated query parameter wordlist ready for `ffuf` or `arjun`.
+  - `CSV` / `JSON` — Structured reports with category, risk score, capture timestamp, API status, and MIME type.
   - `Hosts` — Deduplicated passive subdomain list ready for `subfinder` or `httpx`.
   - `Copy` — One-click clipboard copy of all filtered rows.
-- **🔒 Zero Telemetry & 100% Offline UI**: Strict Manifest V3 CSP, zero third-party scripts or CDNs, zero remote tracking, inline SVG sprite system. All archived URLs are strictly rendered as text to prevent client-side XSS.
+- **🔒 Zero Telemetry & 100% Offline UI**:
+  - Strict Manifest V3 CSP, zero third-party scripts or CDNs, zero remote tracking, inline SVG sprite system. All archived URLs are strictly rendered as text to prevent client-side XSS.
 
 ---
 
 ## 📊 Why Wayback Lens?
 
-| Feature | Wayback Lens | `gau` / `waybackurls` | Archive.org Web UI |
+| Feature | Wayback Lens v2.0 | `gau` / `waybackurls` | Archive.org Web UI |
 | :--- | :---: | :---: | :---: |
 | **Interactive GUI Triage** | ✅ **Real-time Workspace** | ❌ Terminal stdout only | ❌ Static HTML list |
 | **Autonomous Risk Heuristics** | ✅ **Keys, .env, SQL dumps** | ❌ Manual grep required | ❌ None |
+| **Parameter Fuzzing Wordlists** | ✅ **1-Click Params Export** | ❌ Pipe to `qsreplace` / `gau` | ❌ None |
+| **Vulnerability Archetypes** | ✅ **SSRF, LFI, SQLi, Auth** | ❌ Manual analysis | ❌ None |
+| **API & Swagger Auto-Discovery** | ✅ **Built-in Filter & Mode** | ❌ Custom regex scripts | ❌ None |
+| **Terminal CLI Generators** | ✅ **Nuclei / ffuf / httpx** | ❌ Manual command writing | ❌ None |
+| **External OSINT Pivots** | ✅ **Shodan, crt.sh, URLScan** | ❌ Manual search | ❌ None |
+| **Temporal Recon (Year Facets)** | ✅ **Interactive Year Filter** | ❌ Manual timestamp cuts | ❌ Calendar grid |
 | **Live HTTP 200 Prober** | ✅ **Built-in Multi-Worker** | ❌ Pipe to `httpx` | ❌ None |
 | **Subdomain Extraction** | ✅ **1-Click Export** | ❌ Custom `awk` / `cut` | ❌ None |
-| **Active Tab Auto-Target** | ✅ **Instant 1-Click** | ❌ Manual CLI flag | ❌ Manual input |
 | **Streaming Large Datasets** | ✅ **Chunked stream (100k+)** | ✅ Fast stdout | ❌ Browser timeouts |
 | **Privacy & Zero Telemetry** | ✅ **100% Local / MV3** | ✅ Local | ⚠️ Third-party scripts |
 
@@ -87,6 +109,7 @@ Pick any target domain or URL (auto-detected from your active tab) and launch a 
 | 🌐 | **Main Domain** | Every archived path on the exact hostname | `url=host/*` |
 | 🖧 | **All Subdomains** | The host and every underlying subdomain | `matchType=domain` |
 | 📁 | **This Path** | Everything under the active URL path | `matchType=prefix` |
+| ⚡ | **APIs & Swagger** | REST routes, GraphQL, Swagger and OpenAPI specs | `matchType=domain` + API pattern regex |
 | 🔒 | **Sensitive Files** | Backups, dumps, keys, credentials, configs | `matchType=domain` + sensitive extension regex |
 | 📜 | **JavaScript** | `.js` and `.mjs` bundles for API leaks | `matchType=domain` + `.m?js` filter |
 | 🎛️ | **With Parameters** | Query strings formatted for fuzzing & SSRF/IDOR | `matchType=domain` + `original:.*\?.*=.*` |
@@ -114,9 +137,10 @@ Pick any target domain or URL (auto-detected from your active tab) and launch a 
 ### Workflow
 1. Navigate to any target application.
 2. Click the **Wayback Lens** extension icon (the target hostname is pre-filled).
-3. Select your desired scan profile (e.g., **Sensitive files** or **All subdomains**).
+3. Select your desired scan profile (e.g., **Sensitive files**, **APIs & Swagger**, or **All subdomains**).
 4. Triage results in the workspace: filter by risk, press `/` to search, or verify live 200 endpoints.
-5. Export clean datasets as `TXT`, `CSV`, `JSON`, or `Hosts`.
+5. Export clean datasets as `TXT`, `Params`, `CSV`, `JSON`, or `Hosts`.
+6. Open **CLI Pipelines** to copy instant commands for `nuclei`, `ffuf`, or `httpx`.
 
 ---
 
@@ -125,7 +149,7 @@ Pick any target domain or URL (auto-detected from your active tab) and launch a 
 | Shortcut | Context | Action |
 | :--- | :--- | :--- |
 | <kbd>/</kbd> | Results Workspace | Focus and select the search filter input |
-| <kbd>Esc</kbd> | Search Filter | Clear search input and restore view / blur |
+| <kbd>Esc</kbd> | Search / Modals | Clear search filter or close CLI/OSINT modals |
 | <kbd>Enter</kbd> | Extension Popup | Launch default domain scan on active target |
 | <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> | Everywhere | Full keyboard accessibility & focus navigation |
 
@@ -168,17 +192,18 @@ wayback-lens/
 │   ├── index.html            # Interactive cyber landing page & demo simulator
 │   ├── popup.png             # UI preview asset
 │   └── results.png           # UI preview asset
-├── icons/                    # Hi-res extension icons (16px, 32px, 48px, 128px, 512px)
+├── icons/                    # Hi-res extension icons (16px, 32px, 48px, 128px)
 ├── src/
-│   ├── core.js               # CDX query builder, streaming parser, heuristic classifier
+│   ├── core.js               # CDX query builder, streaming parser, classifier, parameter mining, CLI pipelines
 │   ├── popup.css             # Popup UI styles & micro-interactions
 │   ├── popup.js              # Tab detection, target normalization, query preview
-│   ├── results.css           # Workspace design system, dark palette, badges
-│   ├── results.js            # Virtualized list, live prober, faceted filters
+│   ├── results.css           # Workspace design system, dark palette, badges, modals
+│   ├── results.js            # Virtualized list, live prober, faceted filters, CLI/OSINT handlers
 │   └── theme.css             # Shared CSS variables & design tokens
 ├── manifest.json             # Manifest V3 configuration & strict CSP
 ├── popup.html                # Extension launcher markup
 ├── results.html              # Dedicated results workspace markup
+├── CHANGELOG.md              # Historical version changelog
 ├── LICENSE                   # MIT License
 └── README.md                 # Project documentation
 ```
@@ -190,7 +215,9 @@ wayback-lens/
 Crafted with care for the security and bug bounty community by:
 
 **Pratik Khairnar**  
-GitHub: [@pratik-khairnar-sec](https://github.com/pratik-khairnar-sec)
+GitHub: [@pratik-khairnar-sec](https://github.com/pratik-khairnar-sec)  
+Portfolio: [pratikkhairnarsec.web.app](https://pratikkhairnarsec.web.app/)  
+Discord: `pratik.khairnar.sec`
 
 If Wayback Lens helps your recon workflow, please consider giving the repository a ⭐️ **Star**!
 
